@@ -1,7 +1,6 @@
 ﻿using Colorify;
 using Colorify.UI;
 using Figgle;
-using RtlSdrManager;
 
 
 namespace CordellRadioTelescope.EXMPL.window {
@@ -15,12 +14,10 @@ namespace CordellRadioTelescope.EXMPL.window {
 
             ClearScreen(backGround);
 
-            RTL = RtlSdrDeviceManager.Instance;
         }
 
         private ConsoleColor _backGround { get; set; } 
         private Format _colorFormat { get; set; }
-        private RtlSdrDeviceManager RTL { get; set; }
 
         public void DrawMainWindow() {
 
@@ -59,17 +56,24 @@ namespace CordellRadioTelescope.EXMPL.window {
 
         #region [RTL setup]
 
-        private void DrawRTLsetupWindow() {
+        string comPort = "not set";
+        string centralFreq = "1420";
+        string sampleRate = "2";
+        string tunerGain = "AGC";
+        string agcMode = "Enabled";
+        string maxBuffer = "524288";
+        string dropSamples = "True";
 
+        private void DrawRTLsetupWindow() {
             ClearScreen(ConsoleColor.White);
 
             var options = new OptionGenerator(new List<string> {
-                    $"0) COM-port <{com}>", $"1) Center frequency <{centralFreq}>", $"2) Sample rate <{sampleRate}>",
+                    $"0) COM-port <{comPort}>", $"1) Center frequency <{centralFreq} mHz>", $"2) Sample rate <{sampleRate} mHz>",
                     $"3) Tuner gain mode <{tunerGain}>", $"4) AGC mode <{agcMode}>", $"5) Max async buffer size <{maxBuffer}>", $"6) Drop samples on full buffer <{dropSamples}>"
                 },
                 null,
                 new List<Action> {
-                    
+                    SetRTLPort, SetCentralFreq, SetSampleRate, SetTunerGate, SetAGCmode, SetMaxBuffer, SetDropSample
                 }
             );
 
@@ -79,10 +83,50 @@ namespace CordellRadioTelescope.EXMPL.window {
                 Console.WriteLine("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 
                 options.DrawOptions(_colorFormat);
-                options.ReadInput(Console.ReadKey(false).Key);
 
+                var answer = Console.ReadKey(false).Key;
+                options.ReadInput(answer);
+
+                if (answer == ConsoleKey.Enter) break;
                 ClearScreen(ConsoleColor.White);
             }
+
+            DrawRTLsetupWindow();
+        }
+
+        private void SetRTLPort() {
+            Console.WriteLine("Type number of port: ");
+            comPort = Console.ReadLine()!;
+        }
+
+        private void SetCentralFreq() {
+            Console.WriteLine("Set central freq: ");
+            centralFreq = Console.ReadLine()!;
+        }
+
+        private void SetSampleRate() {
+            Console.WriteLine("Set sample rate: ");
+            sampleRate = Console.ReadLine()!;
+        }
+
+        private void SetTunerGate() {
+            Console.WriteLine("New tuner gate: ");
+            tunerGain = Console.ReadLine()!;
+        }
+
+        private void SetAGCmode() {
+            Console.WriteLine("New AGC mode: ");
+            agcMode = Console.ReadLine()!;
+        }
+
+        private void SetMaxBuffer() {
+            Console.WriteLine("Set buffer size: ");
+            maxBuffer = Console.ReadLine()!;
+        }
+
+        private void SetDropSample() {
+            Console.WriteLine("Drop samples (True / False): ");
+            dropSamples = Console.ReadLine()!;
         }
 
         #endregion

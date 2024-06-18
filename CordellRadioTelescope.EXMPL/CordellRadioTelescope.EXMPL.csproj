@@ -10,7 +10,6 @@
   <ItemGroup>
     <PackageReference Include="dein.Colorify" Version="2.9.0" />
     <PackageReference Include="Figgle" Version="0.5.1" />
-    <PackageReference Include="RtlSdrManager" Version="0.2.1" />
   </ItemGroup>
 
 </Project>
