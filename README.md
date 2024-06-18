@@ -1,0 +1,1 @@
+# CordellRadioTelescope.EXMPL
