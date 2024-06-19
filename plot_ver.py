@@ -83,7 +83,7 @@ try:
     slider.on_changed(update_plot)
 
     while True:
-        data = controller.get_serial_data(1024)
+        data = controller.get_serial_data(256)
         if not data:
             continue
 
