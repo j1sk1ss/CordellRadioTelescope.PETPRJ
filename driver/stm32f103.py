@@ -1,13 +1,20 @@
 import serial
 
+from overrides import overrides
+from driver.driver import Driver
 
-class STM32:
+
+class STM32(Driver):
     def __init__(self, port='COM4', bound_rate=115200):
         try:
             self.serial = serial.Serial(port, bound_rate, timeout=1)
         except Exception as e:
             print(f"Serial error: {e}")
             exit()
+
+    @overrides
+    def read(self, count):
+        return self.get_serial_data(count)
 
     def get_serial_data(self, count):
         """
@@ -33,6 +40,7 @@ class STM32:
         for part in data:
             self.serial.write(part.encode('utf-8'))
 
+    @overrides
     def kill(self):
         """
         Kill serial connection

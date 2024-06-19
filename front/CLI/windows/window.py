@@ -1,12 +1,16 @@
 import curses
-from components.component import Component
 
 
 class Window:
     def __init__(self, components: list, screen):
         self.components = components
+        for component in components:
+            component.parent = self
+        
         self.screen = screen
         self.lock_component = None
+        
+        self.is_control = False
     
     def lock(self, index):
         self.lock_component = self.components[index]
@@ -26,7 +30,11 @@ class Window:
             component.draw()
             
     def take_control(self):
-        while True:
+        self.is_control = True
+        while self.is_control:
             key = self.screen.getch()
             self.read_input(key)
+    
+    def untie(self):
+        self.is_control = False
     

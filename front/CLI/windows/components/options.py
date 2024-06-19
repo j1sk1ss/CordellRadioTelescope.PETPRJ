@@ -1,7 +1,8 @@
 
 
 import curses
-from components.component import Component
+
+from front.CLI.windows.components.component import Component
 
 
 class Options(Component):
@@ -19,8 +20,8 @@ class Options(Component):
         super().__init__(x, y, screen)
         
         self.current_index = 0
-        self.options = options
-        self.descriptions = descriptions
+        self.options       = options
+        self.descriptions  = descriptions
         
     def draw(self):
         self.screen.clear()
@@ -58,13 +59,13 @@ class ActionOptions(Component):
         
         super().__init__(x, y, screen)
         self.current_index = 0
-        self.options = options
-        self.descriptions = descriptions
-        self.actions = actions
+        self.options       = options
+        self.descriptions  = descriptions
+        self.actions       = actions
         
         self.input_mode = False
         self.input_data = ""
-        self.input_win = None
+        self.input_win  = None
         
     def draw(self):
         self.screen.clear()
@@ -94,20 +95,19 @@ class ActionOptions(Component):
         self.input_win.refresh()
     
     def read_input(self, user_input):
+        def close():
+            self.input_mode = False
+            self.input_data = ""
+            self.input_win.clear()
+            self.input_win.refresh()
+            self.input_win = None            
+        
         if self.input_mode:
             if user_input == 10:  # ENTER
-                self.actions[self.current_index](self.input_data)
-                self.input_mode = False
-                self.input_data = ""
-                self.input_win.clear()
-                self.input_win.refresh()
-                self.input_win = None
+                self.actions[self.current_index](self, self.input_data)
+                close()
             elif user_input == 27:  # ESC
-                self.input_mode = False
-                self.input_data = ""
-                self.input_win.clear()
-                self.input_win.refresh()
-                self.input_win = None
+                close()
             elif user_input == curses.KEY_BACKSPACE or user_input == 127:
                 self.input_data = self.input_data[:-1]
             elif user_input != curses.KEY_RESIZE:
@@ -124,7 +124,9 @@ class ActionOptions(Component):
                     if callable(self.actions[self.current_index]):
                         if self.actions[self.current_index].__code__.co_argcount == 0:
                             self.actions[self.current_index]()
-                        else:
+                        elif self.actions[self.current_index].__code__.co_argcount == 1:
+                            self.actions[self.current_index](self)
+                        elif self.actions[self.current_index].__code__.co_argcount == 2:
                             self.input_mode = True
                         
             self.draw()
