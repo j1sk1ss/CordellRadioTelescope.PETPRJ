@@ -2,6 +2,7 @@
 
 import curses
 
+from common.common import wrap_text
 from front.CLI.windows.components.component import Component
 
 
@@ -31,8 +32,13 @@ class Options(Component):
             else:
                 self.screen.addstr(self.y + i, self.x, option)
         
-        self.screen.addstr(self.y + len(self.options) + 1, self.x, self.descriptions[self.current_index])
-        self.screen.refresh()
+        height, width = self.screen.getmaxyx()
+        lines     = wrap_text(self.descriptions[self.current_index], width)
+        num_lines = len(lines)
+        start_y   = max(height - num_lines, 0)
+        for i, line in enumerate(lines):
+            y = start_y + i
+            self.screen.addstr(y, self.x, line)
     
     def read_input(self, user_input):
         if user_input == curses.KEY_UP:
@@ -75,8 +81,14 @@ class ActionOptions(Component):
             else:
                 self.screen.addstr(self.y + i, self.x, option)
                 
-        self.screen.addstr(self.y + len(self.options) + 1, self.x, self.descriptions[self.current_index])
-        
+        height, width = self.screen.getmaxyx()
+        lines     = wrap_text(self.descriptions[self.current_index], width)
+        num_lines = len(lines)
+        start_y   = max(height - num_lines, 0)
+        for i, line in enumerate(lines):
+            y = start_y + i
+            self.screen.addstr(y, self.x, line)
+
         if self.input_mode:
             self.draw_input_win()
             
@@ -85,7 +97,7 @@ class ActionOptions(Component):
     def draw_input_win(self):
         height, width = 3, 40
         start_y = self.y + 5
-        start_x = self.x + 5
+        start_x = self.x + 10
         if self.input_win is None:
             self.input_win = curses.newwin(height, width, start_y, start_x)
             

@@ -78,11 +78,11 @@ def generate():
                 waterfall_break_loop = False
 
             elif key == (27 and 91 and 67):
-                front.CLI.cli_ver.central_freq += 1
+                front.CLI.cli_ver.central_freq += 1.0
                 front.CLI.cli_ver.driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
 
             elif key == (27 and 91 and 68):
-                front.CLI.cli_ver.central_freq -= 1
+                front.CLI.cli_ver.central_freq -= 1.0
                 front.CLI.cli_ver.driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
 
     front.CLI.cli_ver.main_screen.nodelay(True)
@@ -90,3 +90,4 @@ def generate():
         display_waterfall(front.CLI.cli_ver.main_screen)
 
     front.CLI.cli_ver.main_screen.nodelay(False)
+    front.CLI.cli_ver.main_screen.scrollok(False)

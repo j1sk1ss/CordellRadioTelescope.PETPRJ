@@ -10,6 +10,7 @@ import main_win
 import rtl_set_win
 import spec_win
 import waterfall
+import summary
 
 from driver.driver import Driver
 from driver.rtl2832u import RTL
@@ -24,13 +25,12 @@ main_screen = curses.initscr()
 driver = Driver()
 
 com_port = '0'
-central_freq = 'none'  # 1420
-sample_rate = '2.048'
+central_freq = 0.0  # 1420
+sample_rate = 2.048
 tuner_gain = 'auto'
 sample_count = '512'
 
 # endregion
-
 
 # region [Windows]
 
@@ -49,8 +49,14 @@ def spectrum_window():
 def waterfall_window():
     waterfall.generate()
 
+def summary_window():
+    summary.generate()
+
 # endregion
 
 
-if __name__ == "__main__":
-    main_window()
+try:
+    if __name__ == "__main__":
+        main_window()
+except KeyboardInterrupt:
+    curses.endwin()

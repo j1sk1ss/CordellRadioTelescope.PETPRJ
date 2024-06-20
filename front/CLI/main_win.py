@@ -21,7 +21,7 @@ def generate():
         "Summary window includes data about authors and simple guide how to create your own radio-telescope"
     ]
 
-    actions = [lambda: rtl_setup(), None, lambda: spectrum_window(), lambda: waterfall_window(), None, None]
+    actions = [lambda: rtl_setup(), None, lambda: spectrum_window(), lambda: waterfall_window(), None, lambda: summary_window()]
 
     window = Window([ActionOptions(1, 2, options, descriptions, actions, main_screen)], main_screen)
     window.draw()
