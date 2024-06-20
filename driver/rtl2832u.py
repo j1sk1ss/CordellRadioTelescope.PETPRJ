@@ -12,8 +12,14 @@ class RTL(Driver):
     def set_sample_rate(self, rate):
         self.body.sample_rate = rate
 
+    def get_sample_rate(self):
+        return self.body.sample_rate
+
     def set_central_freq(self, freq):
         self.body.center_freq = freq
+
+    def get_central_freq(self):
+        return self.body.center_freq
 
     def set_gain(self, gain):
         self.body.gain = gain
