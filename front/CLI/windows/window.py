@@ -16,7 +16,7 @@ class Window:
         self.lock_component = self.components[index]
     
     def read_input(self, user_input):
-        if self.lock_component != None:
+        if self.lock_component is not None:
             self.lock_component.read_input(user_input)
         else:
             for component in self.components:

@@ -1,4 +1,6 @@
 from front.CLI.cli_ver import *
+from front.CLI.windows.components.options import ActionOptions
+from front.CLI.windows.window import Window
 
 
 def generate():
@@ -21,7 +23,11 @@ def generate():
         "Summary window includes data about authors and simple guide how to create your own radio-telescope"
     ]
 
-    actions = [lambda: rtl_setup(), None, lambda: spectrum_window(), lambda: waterfall_window(), None, lambda: summary_window()]
+    actions = [
+        lambda: rtl_setup(), lambda: xy_setup(),
+        lambda: spectrum_window(), lambda: waterfall_window(),
+        None, lambda: summary_window()
+    ]
 
     window = Window([ActionOptions(1, 2, options, descriptions, actions, main_screen)], main_screen)
     window.draw()

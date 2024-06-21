@@ -1,3 +1,7 @@
+import time
+
+import numpy as np
+
 from front.CLI.cli_ver import *
 
 
@@ -45,7 +49,7 @@ def generate():
         min_psd, max_psd = -120, 0
         height, width = stdscr.getmaxyx()
 
-        psd_values = np.fft.fft(front.CLI.cli_ver.driver.read(512), nfft)
+        psd_values = np.fft.fft(front.CLI.cli_ver.rtl_driver.read(512), nfft)
         psd_values = np.abs(psd_values) ** 2 / nfft
         psd_values = 10 * np.log10(psd_values)
         psd_values = np.fft.fftshift(psd_values)
@@ -79,11 +83,11 @@ def generate():
 
             elif key == (27 and 91 and 67):
                 front.CLI.cli_ver.central_freq += 1.0
-                front.CLI.cli_ver.driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
+                front.CLI.cli_ver.rtl_driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
 
             elif key == (27 and 91 and 68):
                 front.CLI.cli_ver.central_freq -= 1.0
-                front.CLI.cli_ver.driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
+                front.CLI.cli_ver.rtl_driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
 
     front.CLI.cli_ver.main_screen.nodelay(True)
     while waterfall_break_loop:

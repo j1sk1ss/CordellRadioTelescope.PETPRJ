@@ -7,7 +7,7 @@ def generate():
     import front.CLI.cli_ver
 
     options = [
-        f"0) COM-port <{front.CLI.cli_ver.com_port}>", f"1) Center frequency <{front.CLI.cli_ver.central_freq} mHz>", f"2) Sample rate <{front.CLI.cli_ver.sample_rate} mHz>",
+        f"0) COM-port <{front.CLI.cli_ver.rtl_com_port}>", f"1) Center frequency <{front.CLI.cli_ver.central_freq} mHz>", f"2) Sample rate <{front.CLI.cli_ver.sample_rate} mHz>",
         f"3) Tuner gain mode <{front.CLI.cli_ver.tuner_gain}>", f"4) Sample count <{front.CLI.cli_ver.sample_count}>", "5) Exit"
     ]
 
@@ -27,10 +27,10 @@ def generate():
         index = int(data)
         body.options[0] = f"0) COM-port <index: {index} ({RTL.get_serials()[index]})>"
 
-        front.CLI.cli_ver.driver = RTL(RTL.get_serials()[index])
-        front.CLI.cli_ver.driver.set_sample_count(512)
-        front.CLI.cli_ver.driver.set_gain('auto')
-        front.CLI.cli_ver.driver.set_sample_rate(2.048e6)
+        front.CLI.cli_ver.rtl_driver = RTL(RTL.get_serials()[index])
+        front.CLI.cli_ver.rtl_driver.set_sample_count(512)
+        front.CLI.cli_ver.rtl_driver.set_gain('auto')
+        front.CLI.cli_ver.rtl_driver.set_sample_rate(2.048e6)
 
         front.CLI.cli_ver.main_screen.refresh()
 
@@ -38,7 +38,7 @@ def generate():
         front.CLI.cli_ver.central_freq = int(data)
         body.options[1] = f"1) Center frequency <{front.CLI.cli_ver.central_freq} mHz>"
 
-        front.CLI.cli_ver.driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
+        front.CLI.cli_ver.rtl_driver.set_central_freq(front.CLI.cli_ver.central_freq * 10e6)
 
         front.CLI.cli_ver.main_screen.refresh()
 
@@ -46,7 +46,7 @@ def generate():
         front.CLI.cli_ver.sample_rate = int(data)
         body.options[2] = f"2) Sample rate <{front.CLI.cli_ver.sample_rate} mHz>"
 
-        front.CLI.cli_ver.driver.set_sample_rate(front.CLI.cli_ver.sample_rate * 10e6)
+        front.CLI.cli_ver.rtl_driver.set_sample_rate(front.CLI.cli_ver.sample_rate * 10e6)
 
         front.CLI.cli_ver.main_screen.refresh()
 
@@ -54,7 +54,7 @@ def generate():
         front.CLI.cli_ver.tuner_gain = data
         body.options[3] = f"3) Tuner gain mode <{front.CLI.cli_ver.tuner_gain}>"
 
-        front.CLI.cli_ver.driver.set_gain(front.CLI.cli_ver.tuner_gain)
+        front.CLI.cli_ver.rtl_driver.set_gain(front.CLI.cli_ver.tuner_gain)
 
         front.CLI.cli_ver.main_screen.refresh()
 
@@ -62,7 +62,7 @@ def generate():
         front.CLI.cli_ver.sample_count = int(data)
         body.options[4] = f"4) Sample count <{front.CLI.cli_ver.sample_count}>"
 
-        front.CLI.cli_ver.driver.set_sample_count(front.CLI.cli_ver.sample_count)
+        front.CLI.cli_ver.rtl_driver.set_sample_count(front.CLI.cli_ver.sample_count)
 
         front.CLI.cli_ver.main_screen.refresh()
 
