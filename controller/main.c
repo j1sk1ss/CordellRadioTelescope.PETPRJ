@@ -1,28 +1,50 @@
-#include <Wire.h> 
-
-#define POT_PIN 0
-#define LED     PC13
+#include "motor.h"
+#include "connector.h"
 
 
-uint16_t a0_value = 0;
+#define LED PC13
+
+
+Connector connector;
+Motor motor;
 
 
 void setup() {
-  pinMode(LED, OUTPUT);
-  pinMode(POT_PIN, INPUT_ANALOG);
-
-  Serial.begin(115200);
-  Wire.begin();
-
-  while (!Serial);
-
-  digitalWrite(LED, LOW);
+  connector.Setup(9600);
 }
 
 void loop() {
-  a0_value = analogRead(POT_PIN);
-  Serial.println(a0_value);
+  String raw_command = connector.Handle();
+  const char* command = raw_command.c_str();
 
-  if (a0_value > 1024) digitalWrite(LED, HIGH);
-  else digitalWrite(LED, LOW);
+  if (strcmp(command, "NULL") == 0) return;
+  else {
+    char direction = command[0];
+    raw_command.remove(0, 1);
+
+    if (direction == 'f') {
+      motor.SetDirection(Motor::FORWARD);
+      connector.Send("forward");
+    }
+
+    else if (direction == 'b') {
+      motor.SetDirection(Motor::BACKWARD);
+      connector.Send("backward");
+    }
+
+    else if (direction == 'k') {
+      motor.Stop();
+      connector.Send("stop");
+    }
+
+    else if (direction == 's') {
+      motor.Start();
+      connector.Send("start");
+    }
+    
+    
+    motor.SetSpeedDelay(raw_command.toInt());
+  }
+
+  motor.Move();
 }
