@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <Arduino.h>
+#include <stdbool.h>
 
 
 #define DIRECTION_PIN PA0
@@ -21,15 +22,20 @@ public:
   };
 
   void Move();
+  void Move(uint16_t steps);
   void SetDirection(direction new_direction);
   void SetSpeedDelay(uint16_t new_delay);
 
   void Start();
   void Stop();
 
+  void SetBlock(bool block);
+  bool IsBlock();
+
 private:
   direction motor_direction;
   uint16_t speed_delay;
+  bool is_block;
 
 };
 
