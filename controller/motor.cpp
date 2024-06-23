@@ -2,20 +2,23 @@
 
 
 Motor::Motor() {
+  // Setup default params
   this->motor_direction = direction::FORWARD;
-  this->resolution = 0;
 
+  // Configure pins
   pinMode(STEP_PIN, OUTPUT);
   pinMode(DIRECTION_PIN, OUTPUT);
+  pinMode(ENABLE_PIN, OUTPUT);
+
+  // Turn off driver
+  digitalWrite(ENABLE_PIN, HIGH);
 }
 
+// 1.8° angle move per resolution
 void Motor::Move() {
-  for (int x = 0; x < this->resolution; x++) {
-    digitalWrite(STEP_PIN, HIGH);
-    delayMicroseconds(this->speed_delay);
-    digitalWrite(STEP_PIN, LOW);
-    delayMicroseconds(this->speed_delay);
-  }    
+  digitalWrite(STEP_PIN, HIGH);
+  delayMicroseconds(this->speed_delay);
+  digitalWrite(STEP_PIN, LOW);
 }
 
 void Motor::SetDirection(direction new_direction) {
@@ -31,20 +34,14 @@ void Motor::SetDirection(direction new_direction) {
   }
 }
 
-void Motor::SetResolution(uint8_t new_resolution) {
-  this->resolution = new_resolution;
-}
-
 void Motor::SetSpeedDelay(uint16_t new_delay) {
   this->speed_delay = new_delay;
 }
 
 void Motor::Start() {
-  this->SetResolution(200);
-  this->SetDirection(Motor::FORWARD);
-  this->SetSpeedDelay(2000);
+  digitalWrite(ENABLE_PIN, LOW);
 }
 
 void Motor::Stop() {
-  this->SetResolution(0);
+  digitalWrite(ENABLE_PIN, HIGH);
 }

@@ -4,8 +4,12 @@
 #include <stdint.h>
 #include <Arduino.h>
 
-#define DIRECTION_PIN PB4
-#define STEP_PIN      PB5
+
+#define DIRECTION_PIN PA0
+#define STEP_PIN      PA1
+#define ENABLE_PIN    PA2
+
+#define FULL_CIRCLE 200
 
 
 class Motor {
@@ -18,7 +22,6 @@ public:
 
   void Move();
   void SetDirection(direction new_direction);
-  void SetResolution(uint8_t new_resolution);
   void SetSpeedDelay(uint16_t new_delay);
 
   void Start();
@@ -26,7 +29,6 @@ public:
 
 private:
   direction motor_direction;
-  uint8_t resolution;
   uint16_t speed_delay;
 
 };

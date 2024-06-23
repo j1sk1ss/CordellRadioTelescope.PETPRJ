@@ -17,8 +17,7 @@ void loop() {
   String raw_command = connector.Handle();
   const char* command = raw_command.c_str();
 
-  if (strcmp(command, "NULL") == 0) return;
-  else {
+  if (strcmp(command, "NULL") != 0) {
     char direction = command[0];
     raw_command.remove(0, 1);
 
@@ -41,9 +40,8 @@ void loop() {
       motor.Start();
       connector.Send("start");
     }
-    
-    
-    motor.SetSpeedDelay(raw_command.toInt());
+
+    motor.SetSpeedDelay((uint16_t)raw_command.toInt());
   }
 
   motor.Move();

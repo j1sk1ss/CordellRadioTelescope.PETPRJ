@@ -14,9 +14,6 @@ class STM32(Driver):
 
     @overrides
     def read(self, count):
-        return self.get_serial_data(count)
-
-    def get_serial_data(self, count):
         """
         :param count: Count of bytes to read
         :return: Data read from serial port
@@ -33,7 +30,8 @@ class STM32(Driver):
 
         return samples
 
-    def send_serial_data(self, data):
+    @overrides
+    def send(self, data):
         """
         :param data: Data write to serial port
         """
