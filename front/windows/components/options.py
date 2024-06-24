@@ -3,11 +3,11 @@
 import curses
 
 from common.common import wrap_text
-from front.CLI.windows.components.component import Component
+from front.windows.components.component import Component
 
 
 class Options(Component):
-    def __init__(self, x: int, y: int, options: list, descriptions: list, screen):
+    def __init__(self, x: int, y: int, options: list, descriptions: list):
         """
             This component represent menu of menu items (strings) with descriptions
         Args:
@@ -18,27 +18,26 @@ class Options(Component):
             screen (_type_): Main screen
         """
         
-        super().__init__(x, y, screen)
+        super().__init__(x, y)
         
         self.current_index = 0
         self.options       = options
         self.descriptions  = descriptions
         
-    def draw(self):
-        self.screen.clear()
+    def draw(self, screen):
         for i, option in enumerate(self.options):
             if i == self.current_index:
-                self.screen.addstr(self.y + i, self.x, option, curses.A_REVERSE)
+                screen.addstr(self.y + i, self.x, option, curses.A_REVERSE)
             else:
-                self.screen.addstr(self.y + i, self.x, option)
+                screen.addstr(self.y + i, self.x, option)
         
-        height, width = self.screen.getmaxyx()
+        height, width = screen.getmaxyx()
         lines     = wrap_text(self.descriptions[self.current_index], width)
         num_lines = len(lines)
         start_y   = max(height - num_lines, 0)
         for i, line in enumerate(lines):
             y = start_y + i
-            self.screen.addstr(y, self.x, line)
+            screen.addstr(y, self.x, line)
     
     def read_input(self, user_input):
         if user_input == curses.KEY_UP:
@@ -46,11 +45,11 @@ class Options(Component):
         elif user_input == curses.KEY_DOWN:
             self.current_index = (self.current_index + 1) % len(self.options)
             
-        self.draw()
+        self.parent.draw()
     
     
 class ActionOptions(Component):
-    def __init__(self, x: int, y: int, options: list, descriptions: list, actions: list, screen):
+    def __init__(self, x: int, y: int, options: list, descriptions: list, actions: list):
         """
             Main option class with actions, input modes and descriptions
         Args:
@@ -63,7 +62,7 @@ class ActionOptions(Component):
             input_mode (bool): False - default, True - with input appereance
         """
         
-        super().__init__(x, y, screen)
+        super().__init__(x, y)
         self.current_index = 0
         self.options       = options
         self.descriptions  = descriptions
@@ -73,26 +72,25 @@ class ActionOptions(Component):
         self.input_data = ""
         self.input_win  = None
         
-    def draw(self):
-        self.screen.clear()
+    def draw(self, screen):
         for i, option in enumerate(self.options):
             if i == self.current_index:
-                self.screen.addstr(self.y + i, self.x, option, curses.A_REVERSE)
+                screen.addstr(self.y + i, self.x, option, curses.A_REVERSE)
             else:
-                self.screen.addstr(self.y + i, self.x, option)
+                screen.addstr(self.y + i, self.x, option)
                 
-        height, width = self.screen.getmaxyx()
+        height, width = screen.getmaxyx()
         lines     = wrap_text(self.descriptions[self.current_index], width)
         num_lines = len(lines)
         start_y   = max(height - num_lines, 0)
         for i, line in enumerate(lines):
             y = start_y + i
-            self.screen.addstr(y, self.x, line)
+            screen.addstr(y, self.x, line)
 
         if self.input_mode:
             self.draw_input_win()
             
-        self.screen.refresh()
+        screen.refresh()
     
     def draw_input_win(self):
         height, width = 3, 40
@@ -141,5 +139,5 @@ class ActionOptions(Component):
                         elif self.actions[self.current_index].__code__.co_argcount == 2:
                             self.input_mode = True
                         
-            self.draw()
+            self.parent.draw()
     

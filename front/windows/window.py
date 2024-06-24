@@ -1,6 +1,20 @@
 import curses
 
 
+class Menu:
+    def __init__(self, parent=None, screen=None):
+        self.parent = parent
+        self.looped = False
+        self.screen = screen
+
+    def generate(self):
+        pass
+
+    def loop(self, action):
+        while self.looped:
+            action()
+
+
 class Window:
     def __init__(self, components: list, screen):
         self.components = components
@@ -27,7 +41,7 @@ class Window:
         self.screen.clear()
         
         for component in self.components:
-            component.draw()
+            component.draw(self.screen)
             
     def take_control(self):
         self.is_control = True

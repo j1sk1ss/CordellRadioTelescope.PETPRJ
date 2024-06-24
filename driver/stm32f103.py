@@ -1,3 +1,5 @@
+import time
+
 import serial
 
 from overrides import overrides
@@ -7,6 +9,7 @@ from driver.driver import Driver
 class STM32(Driver):
     def __init__(self, port='COM4', bound_rate=115200):
         try:
+            self.port = port
             self.serial = serial.Serial(port, bound_rate, timeout=1)
         except Exception as e:
             print(f"Serial error: {e}")
@@ -21,7 +24,7 @@ class STM32(Driver):
         samples = []
         while len(samples) < count:
             try:
-                line = self.serial.readline().decode('utf-8').strip()
+                line = self.readline_with_timeout(10)
                 if line:
                     samples.append(int(line))
             except Exception as exp:
@@ -29,6 +32,22 @@ class STM32(Driver):
                 break
 
         return samples
+
+    def readline_with_timeout(self, timeout=1):
+        start_time = time.time()
+        line = bytearray()
+        while True:
+            if self.serial.inWaiting() > 0:
+                char = self.serial.read(1)
+                if char == b'\n':
+                    break
+
+                line.extend(char)
+
+            if time.time() - start_time > timeout:
+                break
+
+        return line.decode('utf-8').strip()
 
     @overrides
     def send(self, data):

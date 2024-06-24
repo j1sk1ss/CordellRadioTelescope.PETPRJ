@@ -7,7 +7,9 @@ from driver.driver import Driver
 class RTL(Driver):
     def __init__(self, serial):
         self.body = RtlSdr(serial_number=serial)
+        self.serial = serial
         self.sample_count = 512
+        self.update_delay = 0.1
 
     def set_sample_rate(self, rate):
         self.body.sample_rate = rate

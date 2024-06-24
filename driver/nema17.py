@@ -49,8 +49,29 @@ class Nema17(Driver):
         self.direction = Direction.NONE
         self.steps_per_degree = 1.8
 
+        self.power = 0
+        self.radius = 0
+
         # More = slower
         self.speed = 0
+
+        if not self.is_connected():
+            print('[WARN] Nema17 not found!')
+
+    def is_connected(self):
+        """
+        Check Nema17 connection status
+        :return: Connection status
+        """
+        self.controller.send('!')
+
+        try_count = 1000
+        answer = 'not connected'
+        while try_count > 0 and answer != 'connected':
+            answer = self.controller.read(1)
+            try_count -= 1
+
+        return answer == 'connected'
 
     def change_direction(self, direction: Direction):
         """
