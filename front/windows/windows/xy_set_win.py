@@ -33,7 +33,7 @@ class XYSetup(Menu):
             "<EXIT>"
         ]
 
-        # region [XY win handlers]
+# region [XY win handlers]
 
         def com(body: ActionOptions, data):
             index = int(data)
@@ -62,7 +62,7 @@ class XYSetup(Menu):
             body.parent.untie()
             self.parent.generate()
 
-        # endregion
+# endregion
 
         actions = [com, power, rradius, aradius, wexit]
 

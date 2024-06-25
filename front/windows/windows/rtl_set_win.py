@@ -35,7 +35,7 @@ class RTLSetup(Menu):
             "<EXIT>"
         ]
 
-        # region [RTL win handlers]
+# region [RTL win handlers]
 
         def com(body: ActionOptions, data):
             index = int(data)
@@ -89,7 +89,7 @@ class RTLSetup(Menu):
             body.parent.untie()
             self.parent.generate()
 
-        # endregion
+# endregion
 
         actions = [com, cfreq, srate, tuner, scount, udelay, wexit]
 

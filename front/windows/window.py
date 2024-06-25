@@ -6,13 +6,15 @@ class Menu:
         self.parent = parent
         self.looped = False
         self.screen = screen
+        self.action = None
 
     def generate(self):
         pass
 
     def loop(self, action):
+        self.action = action
         while self.looped:
-            action()
+            self.action()
 
 
 class Window:

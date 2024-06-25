@@ -5,6 +5,8 @@ import numpy as np
 import serial
 from numpy.fft import fft, fftfreq
 
+from operator import gt, lt
+
 
 def perform_fft(data, sample_rate):
     n = len(data)
@@ -62,3 +64,12 @@ def serial_ports():
             pass
 
     return result
+
+
+def frange3(start, stop, step):
+    res, n = start, 0.
+    predicate = lt if start < stop else gt
+    while predicate(res, stop):
+        yield res
+        res = start + n * step
+        n += 1
