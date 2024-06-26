@@ -3,6 +3,7 @@ from common.common import serial_ports
 from driver.nema17 import Nema17
 from driver.stm32f103 import STM32
 from front.windows.components.options import ActionOptions
+from front.windows.components.text import Text
 from front.windows.window import Window, Menu
 
 
@@ -68,7 +69,8 @@ class XYSetup(Menu):
 
         window = Window(
             [
-                ActionOptions(0, 0, options, descriptions, actions)
+                Text('XY setup window', 0, 0),
+                ActionOptions(0, 2, options, descriptions, actions)
             ], self.screen
         )
         

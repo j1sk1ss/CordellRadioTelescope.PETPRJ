@@ -45,7 +45,7 @@ class MainMenu(Menu):
 
         window = Window([
             FigletText('CRDL RTS', 'nancyj-improved', 80, 0, 0),
-            Text('Cordell Radio-Telescope System | Made by Nikolay Fot (j1sk1ss)\nver.: 0.1a | 24.06.24', 0, 6),
+            Text('Cordell Radio-Telescope System | Made by Nikolay Fot (j1sk1ss)\nver.: 0.1b | 26.06.24', 0, 6),
             ActionOptions(1, 9, options, descriptions, actions)
         ], self.screen)
         window.draw()

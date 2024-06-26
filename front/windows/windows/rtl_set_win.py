@@ -1,6 +1,7 @@
 from overrides import overrides
 from driver.rtl2832u import RTL
 from front.windows.components.options import ActionOptions
+from front.windows.components.text import Text
 from front.windows.window import Window, Menu
 
 
@@ -35,7 +36,7 @@ class RTLSetup(Menu):
             "<EXIT>"
         ]
 
-# region [RTL win handlers]
+        # region [RTL win handlers]
 
         def com(body: ActionOptions, data):
             index = int(data)
@@ -89,11 +90,14 @@ class RTLSetup(Menu):
             body.parent.untie()
             self.parent.generate()
 
-# endregion
+        # endregion
 
-        actions = [com, cfreq, srate, tuner, scount, udelay, wexit]
+        window = Window([
+            Text('RTL setup window', 0, 0),
+            ActionOptions(0, 2, options, descriptions,
+                          [com, cfreq, srate, tuner, scount, udelay, wexit]
+                          )
+        ], self.screen)
 
-        window = Window([ActionOptions(0, 0, options, descriptions, actions)], self.screen)
         window.draw()
-
         window.take_control()

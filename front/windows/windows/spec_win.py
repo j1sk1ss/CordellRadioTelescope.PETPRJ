@@ -94,7 +94,15 @@ class Spectrum(Menu):
                             'average': average
                         })
 
-            display_results(data, summary)
+            exit_code = display_results(data, summary)
+            if exit_code == -1:
+                pass
+            elif exit_code == 10:
+                self.action = display_histogram
+                body.parent.untie()
+                self.screen.nodelay(True)
+
+        chosen_freq = 17
 
         def display_results(data, summary):
             self.screen.clear()
@@ -106,7 +114,7 @@ class Spectrum(Menu):
             col_width = max_x // 2
             max_rows = max_y - 2
 
-            def draw_page(start_index):
+            def draw_page(start_index, cpos):
                 self.screen.clear()
                 self.screen.border()
                 self.screen.addstr(0, 2, "Summary of PSD Values:")
@@ -119,26 +127,49 @@ class Spectrum(Menu):
                 col = col_width + 2
                 self.screen.addstr(0, col, "Interested freq.:")
                 for i, entry in enumerate(data[start_index:start_index + max_rows // 2]):
-                    self.screen.addstr(y, col,
-                                       f"Freq: {entry['freq']:.2f} MHz, "
-                                       f"Power: {entry['power']:.2f}dB / {entry['average']:.2f}dB")
+                    if cpos == y:
+                        global chosen_freq
+                        chosen_freq = entry['freq']
+                        self.screen.addstr(y, col,
+                                           f"Freq: {entry['freq']:.2f} MHz, "
+                                           f"Power: {entry['power']:.2f}dB / {entry['average']:.2f}dB", curses.A_REVERSE
+                                           )
+                    else:
+                        self.screen.addstr(y, col,
+                                           f"Freq: {entry['freq']:.2f} MHz, "
+                                           f"Power: {entry['power']:.2f}dB / {entry['average']:.2f}dB")
                     y += 1
 
                 self.screen.refresh()
 
             index = 0
-            draw_page(index)
+            cursor = 0
+            draw_page(index, cursor)
 
             while True:
                 key = self.screen.getch()
-                if key == (27 and 91 and 65) and index > 0:
-                    index -= max_rows // 2
+                if key == (27 and 91 and 65) and cursor >= 0:
+                    cursor -= 1
+                    if cursor < 0:
+                        index -= max_rows // 2
+                        cursor = max_rows // 2
                 elif key == (27 and 91 and 66) and index + max_rows // 2 < len(summary):
-                    index += max_rows // 2
-                elif key == ord('q'):
-                    break
+                    cursor += 1
+                    if cursor >= max_rows // 2:
+                        index += max_rows // 2
+                        cursor = 0
+                elif key == 10:
+                    global chosen_freq
 
-                draw_page(index)
+                    import front.config
+                    front.config.rtl_driver.set_central_freq(abs(chosen_freq) * 10e6)
+
+                    return 10
+                elif key == ord('q'):
+                    self.action = display_histogram
+                    return -1
+
+                draw_page(index, cursor)
 
 # endregion
 
@@ -154,7 +185,7 @@ class Spectrum(Menu):
                 Text('Finder - simple tool for spectrum analyze. Set max freq., min freq., step and width of line. '
                      'Then set interested difference with average value. After analyze, you will receive list '
                      'of signals. Good luck!', 0, 0),
-                ActionOptions(0, 2, [
+                ActionOptions(0, 3, [
                     f"0) Min freq. <{min_freq} mHz>", f"1) Max freq. <{max_freq} mHz>",
                     f"2) Step <{freq_step} mHz>", f"3) Line width <{line_width} mHz>",
                     f"4) Difference <{difference} dB>", f"5) Start analyze", f"6) Exit"
