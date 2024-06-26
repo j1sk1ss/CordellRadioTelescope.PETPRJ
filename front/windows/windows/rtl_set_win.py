@@ -52,33 +52,25 @@ class RTLSetup(Menu):
         def cfreq(body: ActionOptions, data):
             freq = int(data)
             body.options[1] = f"1) Center frequency <{freq} mHz>"
-
             front.config.rtl_driver.set_central_freq(freq * 10e6)
-
             self.screen.refresh()
 
         def srate(body: ActionOptions, data):
             rate = int(data)
             body.options[2] = f"2) Sample rate <{rate} mHz>"
-
             front.config.rtl_driver.set_sample_rate(rate * 10e6)
-
             self.screen.refresh()
 
         def tuner(body: ActionOptions, data):
             gain = data
             body.options[3] = f"3) Tuner gain mode <{gain}>"
-
             front.config.rtl_driver.set_gain(gain)
-
             self.screen.refresh()
 
         def scount(body: ActionOptions, data):
             count = int(data)
             body.options[4] = f"4) Sample count <{count}>"
-
             front.config.rtl_driver.set_sample_count(count)
-
             self.screen.refresh()
 
         def udelay(body: ActionOptions, data):

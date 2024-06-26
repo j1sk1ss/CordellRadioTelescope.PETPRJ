@@ -5,6 +5,7 @@ from front.windows.components.text import FigletText, Text
 from front.windows.window import Window, Menu
 from front.windows.windows.rtl_set_win import RTLSetup
 from front.windows.windows.spec_win import Spectrum
+from front.windows.windows.summary import SummaryWin
 from front.windows.windows.waterfall import Waterfall
 from front.windows.windows.xy_set_win import XYSetup
 
@@ -35,7 +36,7 @@ class MainMenu(Menu):
         xy_setup_window = XYSetup(self, self.screen)
         spectrum_window = Spectrum(self, self.screen)
         waterfall_window = Waterfall(self, self.screen)
-        summary_window = Menu(self, self.screen)
+        summary_window = SummaryWin(self, self.screen)
 
         actions = [
             lambda: rtl_setup_window.generate(), lambda: xy_setup_window.generate(),

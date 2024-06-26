@@ -1,48 +1,9 @@
 import curses
 
+from overrides import overrides
+
 from common.common import wrap_text
 from front.windows.components.component import Component
-
-
-class Options(Component):
-    def __init__(self, x: int, y: int, options: list, descriptions: list):
-        """
-            This component represent menu of menu items (strings) with descriptions
-        Args:
-            x (int): X coordinate
-            y (int): Y coordinate
-            options (list): List of options in menu
-            descriptions (list): List of option descriptions
-        """
-
-        super().__init__(x, y)
-
-        self.current_index = 0
-        self.options = options
-        self.descriptions = descriptions
-
-    def draw(self, screen):
-        for i, option in enumerate(self.options):
-            if i == self.current_index:
-                screen.addstr(self.y + i, self.x, option, curses.A_REVERSE)
-            else:
-                screen.addstr(self.y + i, self.x, option)
-
-        height, width = screen.getmaxyx()
-        lines = wrap_text(self.descriptions[self.current_index], width)
-        num_lines = len(lines)
-        start_y = max(height - num_lines, 0)
-        for i, line in enumerate(lines):
-            y = start_y + i
-            screen.addstr(y, self.x, line)
-
-    def read_input(self, user_input):
-        if user_input == curses.KEY_UP:
-            self.current_index = (self.current_index - 1) % len(self.options)
-        elif user_input == curses.KEY_DOWN:
-            self.current_index = (self.current_index + 1) % len(self.options)
-
-        self.parent.draw()
 
 
 class ActionOptions(Component):
@@ -67,6 +28,7 @@ class ActionOptions(Component):
         self.input_data = ""
         self.input_win = None
 
+    @overrides
     def draw(self, screen):
         for i, option in enumerate(self.options):
             if i == self.current_index:
@@ -99,6 +61,7 @@ class ActionOptions(Component):
         self.input_win.addstr(1, 1, "Input: " + self.input_data)
         self.input_win.refresh()
 
+    @overrides
     def read_input(self, user_input):
         def close():
             self.input_mode = False
