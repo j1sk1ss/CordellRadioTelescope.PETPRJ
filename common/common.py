@@ -73,3 +73,17 @@ def frange3(start, stop, step):
         yield res
         res = start + n * step
         n += 1
+
+
+def spectro_analyze(rate, center, nfft=1024):
+    import front.config
+
+    frequencies = np.fft.fftfreq(nfft, 1 / rate)
+    psd_values = np.fft.fft(front.config.rtl_driver.read(front.config.rtl_driver.sample_count), nfft)
+    psd_values = np.abs(psd_values) ** 2 / nfft
+    psd_values = 10 * np.log10(psd_values)
+
+    psd_values = np.fft.fftshift(psd_values)
+    frequencies = np.fft.fftshift(frequencies) + center
+
+    return psd_values, frequencies

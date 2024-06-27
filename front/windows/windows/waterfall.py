@@ -13,7 +13,6 @@ class Waterfall(Menu):
 
         self.screen.clear()
         self.looped = True
-
         self.screen.scrollok(True)
 
         brightness_chars = " .:-=+*#%@"
@@ -77,16 +76,14 @@ class Waterfall(Menu):
             if key != -1:
                 if key == ord('q'):
                     self.looped = False
-
                 elif key == (27 and 91 and 67):
                     front.config.rtl_driver.body.center_freq += 10e6
-
                 elif key == (27 and 91 and 68):
                     front.config.rtl_driver.body.center_freq -= 10e6
 
         self.screen.nodelay(True)
         self.loop(display_waterfall)
-
-        curses.start_color()
         self.screen.nodelay(False)
         self.screen.scrollok(False)
+
+        curses.use_default_colors()

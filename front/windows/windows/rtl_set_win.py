@@ -1,5 +1,6 @@
 from overrides import overrides
 from driver.rtl2832u import RTL
+from front.windows.components.border import Border
 from front.windows.components.options import ActionOptions
 from front.windows.components.text import Text
 from front.windows.window import Window, Menu
@@ -85,8 +86,9 @@ class RTLSetup(Menu):
         # endregion
 
         window = Window([
+            Border(0, 0),
             Text('RTL setup window', 0, 0),
-            ActionOptions(0, 2, options, descriptions,
+            ActionOptions(1, 2, options, descriptions,
                           [com, cfreq, srate, tuner, scount, udelay, wexit]
                           )
         ], self.screen)

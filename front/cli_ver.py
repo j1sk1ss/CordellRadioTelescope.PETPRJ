@@ -29,6 +29,8 @@ def main():
 
 try:
     if __name__ == "__main__":
+        curses.start_color()
+        curses.use_default_colors()
         main()
 except KeyboardInterrupt:
     curses.endwin()

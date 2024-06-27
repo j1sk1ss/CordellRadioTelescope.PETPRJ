@@ -2,6 +2,7 @@ from overrides import overrides
 from common.common import serial_ports
 from driver.nema17 import Nema17
 from driver.stm32f103 import STM32
+from front.windows.components.border import Border
 from front.windows.components.options import ActionOptions
 from front.windows.components.text import Text
 from front.windows.window import Window, Menu
@@ -69,8 +70,9 @@ class XYSetup(Menu):
 
         window = Window(
             [
+                Border(0, 0),
                 Text('XY setup window', 0, 0),
-                ActionOptions(0, 2, options, descriptions, actions)
+                ActionOptions(1, 2, options, descriptions, actions)
             ], self.screen
         )
         

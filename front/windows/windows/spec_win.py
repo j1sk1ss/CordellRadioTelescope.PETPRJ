@@ -4,7 +4,7 @@ import numpy as np
 
 from overrides import overrides
 
-from common.common import frange3
+from common.common import frange3, spectro_analyze
 from front.windows.components.options import ActionOptions
 from front.windows.components.text import Text
 from front.windows.window import Menu, Window
@@ -21,20 +21,6 @@ class Spectrum(Menu):
     @overrides
     def generate(self):
         self.looped = True
-
-        def spectro_analyze(rate, center):
-            import front.config
-
-            nfft = 1024
-            frequencies = np.fft.fftfreq(nfft, 1 / rate)
-            psd_values = np.fft.fft(front.config.rtl_driver.read(512), nfft)
-            psd_values = np.abs(psd_values) ** 2 / nfft
-            psd_values = 10 * np.log10(psd_values)
-
-            psd_values = np.fft.fftshift(psd_values)
-            frequencies = np.fft.fftshift(frequencies) + center
-
-            return psd_values, frequencies
 
 # region [Finder]
 
