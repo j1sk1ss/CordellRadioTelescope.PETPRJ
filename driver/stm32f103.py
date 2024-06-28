@@ -16,7 +16,7 @@ class STM32(Driver):
             exit()
 
     @overrides
-    def read(self, count):
+    def read(self, count) -> list:
         """
         :param count: Count of bytes to read
         :return: Data read from serial port
@@ -24,7 +24,7 @@ class STM32(Driver):
         samples = []
         while len(samples) < count:
             try:
-                line = self.readline_with_timeout(10)
+                line = self.serial.readline()
                 if line:
                     samples.append(int(line))
             except Exception as exp:
@@ -49,13 +49,12 @@ class STM32(Driver):
 
         return line.decode('utf-8').strip()
 
-    @overrides
-    def send(self, data):
+#    @overrides
+    def send(self, data: str):
         """
         :param data: Data write to serial port
         """
-        for part in data:
-            self.serial.write(part.encode('utf-8'))
+        self.serial.write(data.encode())
 
     @overrides
     def kill(self):

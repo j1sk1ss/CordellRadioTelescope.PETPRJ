@@ -8,20 +8,24 @@ class RTL(Driver):
     def __init__(self, serial):
         self.body = RtlSdr(serial_number=serial)
         self.serial = serial
+
         self.sample_count = 512
         self.update_delay = 0.1
 
     def set_sample_rate(self, rate):
-        self.body.sample_rate = rate
+        self.body.set_sample_rate(rate)
 
     def get_sample_rate(self):
-        return self.body.sample_rate
+        return self.body.get_sample_rate()
 
     def set_central_freq(self, freq):
-        self.body.center_freq = freq
+        self.body.set_center_freq(freq)
+
+    def change_central_freq(self, freq):
+        self.set_central_freq(self.get_central_freq() + freq)
 
     def get_central_freq(self):
-        return self.body.center_freq
+        return self.body.get_center_freq()
 
     def set_gain(self, gain):
         self.body.gain = gain

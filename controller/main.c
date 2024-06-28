@@ -2,8 +2,14 @@
 #include "connector.h"
 
 
+#define MOTOR_TYPE  0
+#define DAC_TYPE    1
+#define DAC_PIN     PA0
+
+
 Connector connector;
 Motor motor;
+int type = MOTOR_TYPE;
 
 
 void setup() {
@@ -15,7 +21,6 @@ void loop() {
   const char* command = raw_command.c_str();
 
   if (strcmp(command, "NULL") != 0) {
-    raw_command.remove(0, 1);
 
     //==============================================
     // General command
@@ -26,46 +31,62 @@ void loop() {
     // S - turn on motor
     // E - enable movement (infinity movement)
     // D - disable movement
+    // ! - check status
 
       char primary_command = raw_command[0];
       raw_command.remove(0, 1); // Remove the primary command character
 
       switch (primary_command) {
+          case '!':
+            connector.Send("connected");
+          return;
+
           case 'f':
               motor.SetDirection(Motor::FORWARD);
               connector.Send("forward");
-              break;
+          break;
 
           case 'b':
               motor.SetDirection(Motor::BACKWARD);
               connector.Send("backward");
-              break;
+          break;
 
           case 'n':
               connector.Send("none");
-              break;
+          break;
 
           case 'k':
               motor.Stop();
               connector.Send("stop");
-              break;
+          break;
 
           case 's':
               motor.Start();
               connector.Send("start");
-              break;
+          break;
 
           case 'e':
               motor.SetBlock(false);
-              break;
+              connector.Send("enable");
+          break;
 
           case 'd':
               motor.SetBlock(true);
-              break;
+              connector.Send("disable");
+          break;
+
+          case 'a':
+            type = DAC_TYPE;
+          break;
+
+          case 'm':
+            type = MOTOR_TYPE;
+            connector.Send("motor");
+          break;
 
           default:
               connector.Send("unknown command");
-              return;
+          return;
       }
 
       if (isdigit(raw_command[0])) {
@@ -93,7 +114,7 @@ void loop() {
     //==============================================
     // Examples:
     // f250s200 - Move forward with step delay 0.25 second by 360 degrees (200 steps with 1.8 degrees per step = 360 degrees)
-    // b1000i - Move backward with step delay 1 second
+    // b1000ie - Move backward with step delay 1 second
     // k - stop motor
     //
     // [Warn]
@@ -101,6 +122,13 @@ void loop() {
     // SpeedDelay - 2000 ms
     // Direction - forward
     //==============================================
+  }
+
+  if (type == DAC_TYPE) {
+    String output = String(analogRead(DAC_PIN));
+    output.concat('\n');
+    connector.Send(output);
+    return;
   }
 
   if (motor.IsBlock() == false) motor.Move();

@@ -14,8 +14,8 @@ class RTLSetup(Menu):
         if isinstance(front.config.rtl_driver, RTL):
             options = [
                 f"0) COM-port <{front.config.rtl_driver.serial}>",
-                f"1) Center frequency <{front.config.rtl_driver.body.center_freq / 10e6} mHz>",
-                f"2) Sample rate <{front.config.rtl_driver.body.sample_rate / 10e6} mHz>",
+                f"1) Center frequency <{front.config.rtl_driver.get_central_freq() / 1e6} mHz>",
+                f"2) Sample rate <{front.config.rtl_driver.body.get_sample_rate() / 1e6} mHz>",
                 f"3) Tuner gain mode <{front.config.rtl_driver.body.gain}>",
                 f"4) Sample count <{front.config.rtl_driver.sample_count}>",
                 f"5) Update delay <{front.config.rtl_driver.update_delay} s>", "6) Exit"
@@ -53,13 +53,13 @@ class RTLSetup(Menu):
         def cfreq(body: ActionOptions, data):
             freq = int(data)
             body.options[1] = f"1) Center frequency <{freq} mHz>"
-            front.config.rtl_driver.set_central_freq(freq * 10e6)
+            front.config.rtl_driver.set_central_freq(freq * 1e6)
             self.screen.refresh()
 
         def srate(body: ActionOptions, data):
             rate = int(data)
             body.options[2] = f"2) Sample rate <{rate} mHz>"
-            front.config.rtl_driver.set_sample_rate(rate * 10e6)
+            front.config.rtl_driver.set_sample_rate(rate * 1e6)
             self.screen.refresh()
 
         def tuner(body: ActionOptions, data):

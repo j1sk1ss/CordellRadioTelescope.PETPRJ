@@ -1,3 +1,4 @@
+import curses
 import glob
 import sys
 
@@ -6,6 +7,8 @@ import serial
 from numpy.fft import fft, fftfreq
 
 from operator import gt, lt
+
+from driver.rtl2832u import RTL
 
 
 def perform_fft(data, sample_rate):
@@ -19,7 +22,7 @@ def wrap_text(text, width):
     """
     Wrap text to fit within the given width and handle \n characters.
     """
-    lines    = []
+    lines = []
     segments = text.split('\n')
     
     for segment in segments:
@@ -40,7 +43,7 @@ def serial_ports():
     """
     Lists serial port names
 
-    :raises EnvironmentError:
+    :raisesEnvironmentError:
         On unsupported or unknown platforms
     :returns:
         A list of the serial ports available on the system
@@ -87,3 +90,53 @@ def spectro_analyze(rate, center, nfft=1024):
     frequencies = np.fft.fftshift(frequencies) + center
 
     return psd_values, frequencies
+
+
+def check_rtl(scr, h, w):
+    import front.config
+
+    if not isinstance(front.config.rtl_driver, RTL):
+        scr.screen.border()
+        scr.screen.addstr(h // 2, w // 2, 'RTL not connected')
+        scr.screen.addstr(h // 2 + 1, w // 2, 'q - exit | d - use stm32 dac value')
+        scr.screen.refresh()
+        scr.screen.nodelay(False)
+
+        key = scr.screen.getch()
+        if key == ord('q'):
+            scr.looped = False
+            return -1
+        elif key == ord('d'):
+            return 1
+        else:
+            scr.looped = False
+            return -1
+
+    return 0
+
+
+def init_colors():
+    brightness_chars = " .:-=+*#%@"
+
+    curses.start_color()
+    curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+    curses.init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)
+
+    char_colors = {
+        " ": curses.color_pair(1),  # blue
+        ".": curses.color_pair(1),  # blue
+        ":": curses.color_pair(2),  # cyan
+        "-": curses.color_pair(2),  # cyan
+        "=": curses.color_pair(3),  # green
+        "+": curses.color_pair(3),  # green
+        "*": curses.color_pair(4),  # yellow
+        "#": curses.color_pair(5),  # magenta
+        "%": curses.color_pair(5),  # magenta
+        "@": curses.color_pair(6),  # red
+    }
+
+    return char_colors, brightness_chars

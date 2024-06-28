@@ -4,7 +4,7 @@ import numpy as np
 
 from overrides import overrides
 
-from common.common import frange3, spectro_analyze
+from common.common import frange3, spectro_analyze, check_rtl
 from front.windows.components.options import ActionOptions
 from front.windows.components.text import Text
 from front.windows.window import Menu, Window
@@ -15,6 +15,7 @@ max_freq = 0.1
 freq_step = 2.0
 line_width = 2.048
 difference = 10.0
+chosen_freq = 0
 
 
 class Spectrum(Menu):
@@ -26,13 +27,13 @@ class Spectrum(Menu):
 
 # region [Finder handlers]
 
-        def set_minf(body: ActionOptions, data):
+        def set_min(body: ActionOptions, data):
             global min_freq
             min_freq = float(data)
             body.options[0] = f"0) Min freq. <{min_freq} mHz>"
             self.screen.refresh()
 
-        def set_maxf(body: ActionOptions, data):
+        def set_max(body: ActionOptions, data):
             global max_freq
             max_freq = float(data)
             body.options[1] = f"1) Max freq. <{max_freq} mHz>"
@@ -64,7 +65,7 @@ class Spectrum(Menu):
 
             for i in frange3(min_freq, max_freq, freq_step):
                 psd_values, frequencies = spectro_analyze(
-                    line_width * 10e6, float(i * 10e6)
+                    line_width * 1e6, float(i * 1e6)
                 )
 
                 summary.extend(psd_values)
@@ -75,7 +76,7 @@ class Spectrum(Menu):
 
                     if abs(abs(power) - abs(average)) > difference:
                         data.append({
-                            'freq': frequency / 10e6,
+                            'freq': frequency,
                             'power': power,
                             'average': average
                         })
@@ -87,8 +88,6 @@ class Spectrum(Menu):
                 self.action = display_histogram
                 body.parent.untie()
                 self.screen.nodelay(True)
-
-        chosen_freq = 17
 
         def display_results(data, summary):
             self.screen.clear()
@@ -117,12 +116,12 @@ class Spectrum(Menu):
                         global chosen_freq
                         chosen_freq = entry['freq']
                         self.screen.addstr(y, col,
-                                           f"Freq: {entry['freq']:.2f} MHz, "
+                                           f"Freq: {entry['freq'] / 1e6:.2f} MHz, "
                                            f"Power: {entry['power']:.2f}dB / {entry['average']:.2f}dB", curses.A_REVERSE
                                            )
                     else:
                         self.screen.addstr(y, col,
-                                           f"Freq: {entry['freq']:.2f} MHz, "
+                                           f"Freq: {entry['freq'] / 1e6:.2f} MHz, "
                                            f"Power: {entry['power']:.2f}dB / {entry['average']:.2f}dB")
                     y += 1
 
@@ -148,7 +147,7 @@ class Spectrum(Menu):
                     global chosen_freq
 
                     import front.config
-                    front.config.rtl_driver.set_central_freq(abs(chosen_freq) * 10e6)
+                    front.config.rtl_driver.set_central_freq(chosen_freq)
 
                     return 10
                 elif key == ord('q'):
@@ -186,7 +185,7 @@ class Spectrum(Menu):
                     "Difference - difference bin value in line with average of this bin.",
                     "<START>", "<EXIT>"
                 ], [
-                    set_minf, set_maxf, set_freqs, set_linew, set_diff, astart, wexit
+                    set_min, set_max, set_freqs, set_linew, set_diff, astart, wexit
                 ])
             ], self.screen
         )
@@ -200,18 +199,53 @@ class Spectrum(Menu):
 
 # region [Histogram]
 
+# region [STM32]
+
+        def display_stm32_value():
+            import front.config
+
+            self.screen.clear()
+            curses.curs_set(0)
+
+            height, width = self.screen.getmaxyx()
+            height, width = height - 2, width - 1
+
+            self.screen.border()
+            self.screen.addstr(height // 2, width // 2, f'Value: {np.mean(front.config.stm32_driver.read(256))}')
+            self.screen.addstr(height + 1, 0, 'q - exit')
+
+            self.screen.refresh()
+            time.sleep(0.05)
+
+            key = self.screen.getch()
+            if key != -1:
+                if key == ord('q'):
+                    self.looped = False
+                    front.config.stm32_driver.send('m\n')
+
+# endregion
+
         def display_histogram():
             import front.config
 
             self.screen.clear()
             curses.curs_set(0)
 
-            psd_values, frequencies = spectro_analyze(
-                float(front.config.rtl_driver.body.sample_rate), float(front.config.rtl_driver.body.center_freq)
-            )
-
             height, width = self.screen.getmaxyx()
             height, width = height - 2, width - 1
+
+            code = check_rtl(self, height, width)
+            if code == -1:
+                return
+            elif code == 1:
+                self.screen.nodelay(True)
+                front.config.stm32_driver.send('a\n')
+                self.action = display_stm32_value
+                return
+
+            psd_values, frequencies = spectro_analyze(
+                float(front.config.rtl_driver.body.get_sample_rate()), float(front.config.rtl_driver.get_central_freq())
+            )
 
             min_psd = np.min(psd_values)
             max_psd = np.max(psd_values)
@@ -231,10 +265,10 @@ class Spectrum(Menu):
                 self.screen.addstr(height - i - 2, 0, label)
 
             for i in range(0, num_bins, 10):
-                freq_label = f"{np.round(float(frequencies[i] / 10e6), 1)}mHz"
+                freq_label = f"{np.round(float(frequencies[i] / 1e6), 1)}mHz"
                 self.screen.addstr(height - 1, i + 10 - len(freq_label) // 2, freq_label)
 
-            self.screen.addstr(height + 1, 0, 'q - exit | e - finder interface')
+            self.screen.addstr(height + 1, 0, f'q - exit | e - finder interface')
             self.screen.refresh()
             time.sleep(front.config.rtl_driver.update_delay)
 
@@ -245,9 +279,9 @@ class Spectrum(Menu):
                 elif key == ord('e'):
                     self.action = display_finder
                 elif key == (27 and 91 and 67):
-                    front.config.rtl_driver.body.center_freq += 10e6
+                    front.config.rtl_driver.change_central_freq(1e6)
                 elif key == (27 and 91 and 68):
-                    front.config.rtl_driver.body.center_freq -= 10e6
+                    front.config.rtl_driver.change_central_freq(-1e6)
 
         # endregion
 

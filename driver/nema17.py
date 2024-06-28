@@ -55,9 +55,6 @@ class Nema17(Driver):
         # More = slower
         self.speed = 0
 
-        if not self.is_connected():
-            print('[WARN] Nema17 not found!')
-
     def is_connected(self):
         """
         Check Nema17 connection status

@@ -1,14 +1,15 @@
 #include "connector.h"
 
 
-Connector::Connector(uint32_t baud_rate) {
-  this->baud_rate = baud_rate;
-  Serial.begin(this->baud_rate);
+void Connector::Setup(uint32_t baud_rate) {
+  Serial.begin(baud_rate);
 }
 
 String Connector::Handle() {
+  if (Serial.available() == 0) return "NULL";
+
   String incoming_data = "NULL";
-  if (Serial.available() > 0) incoming_data = Serial.readString();
+  if (Serial.available() > 0) incoming_data = Serial.readStringUntil('\n');
   else return "NULL";
 
   if (incoming_data.length() > 0) return incoming_data;
