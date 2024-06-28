@@ -7,11 +7,25 @@ from overrides import overrides
 
 import front.config
 from common.common import frange3, spectro_analyze, check_rtl, init_colors
-from front.windows.window import Menu
+from front.windows.components.border import Border
+from front.windows.components.options import ActionOptions
+from front.windows.components.text import Text
+from front.windows.window import Menu, Window
 
 degrees = 0
 azimuth = 0
 values = []
+
+# region [Config vars]
+
+resolution = 64
+deg_per_step = 1.8
+az_per_step = 1
+lower_frequency = 500.0
+upper_frequency = 1766.0
+
+
+# endregion
 
 
 class MoveWin(Menu):
@@ -34,6 +48,74 @@ class MoveWin(Menu):
 
         current_values = []
 
+        # region [Handlers]
+
+        def snap_res(body: ActionOptions, data):
+            global resolution
+            resolution = int(data)
+            body.options[0] = f"0) Snap resolution <{resolution}>"
+            self.screen.refresh()
+
+        def deg_step(body: ActionOptions, data):
+            global deg_per_step
+            deg_per_step = int(data)
+            body.options[1] = f"1) Degrees per step <{deg_per_step}>"
+            self.screen.refresh()
+
+        def az_step(body: ActionOptions, data):
+            global az_per_step
+            az_per_step = int(data)
+            body.options[2] = f"2) Azimuth per step <{az_per_step}>"
+            self.screen.refresh()
+
+        def lower(body: ActionOptions, data):
+            global lower_frequency
+            lower_frequency = float(data)
+            body.options[3] = f"3) Lower freq. <{lower_frequency} mHz>"
+            self.screen.refresh()
+
+        def upper(body: ActionOptions, data):
+            global upper_frequency
+            upper_frequency = float(data)
+            body.options[4] = f"4) Upper freq. <{upper_frequency} mHz>"
+            self.screen.refresh()
+
+        def wexit(body: ActionOptions):
+            body.parent.untie()
+            self.screen.nodelay(True)
+            self.action = display_movement_window
+
+        # endregion
+
+        global resolution, deg_per_step, az_per_step, lower_frequency, upper_frequency
+
+        config_window = Window(
+            [
+                Border(0, 0),
+                Text('Configurations', 0, 0),
+                ActionOptions(
+                    1, 1,
+                    [
+                        f"0) Snap resolution <{resolution}>", f"1) Degrees per step <{deg_per_step}>",
+                        f"2) Azimuth per step <{az_per_step}>", f"3) Lower freq. <{lower_frequency} mHz>",
+                        f"4) Upper freq. <{upper_frequency} mHz>", "5) Exit"
+                    ],
+                    [
+                        "<SNAP_RES>", "Degrees per one step", "Azimuth angle per one step",
+                        "Lower bound of snapshot", "Upper bound of snapshot", "<EXIT>"
+                    ],
+                    [
+                        snap_res, deg_step, az_step, lower, upper, wexit
+                    ]
+                )
+            ], self.screen
+        )
+
+        def display_config_win():
+            self.screen.nodelay(False)
+            config_window.draw()
+            config_window.take_control()
+
         def display_movement_window():
             display_waterfall_win(h, w)
             display_histogram_win(h, w)
@@ -55,21 +137,23 @@ class MoveWin(Menu):
             global degrees, azimuth, values
             degree_pos = int(((degrees % 360) / 360) * scale_width)
 
-            self.screen.addstr(scale_start_y - 1, scale_start_x + degree_pos + 1, "  ")
-            self.screen.addstr(scale_start_y - 1, scale_start_x + degree_pos - 1, "  ")
+            self.screen.move(scale_start_y - 1, 0)
+            self.screen.clrtoeol()
 
             self.screen.addstr(scale_start_y - 1, scale_start_x + degree_pos, "\/")
             self.screen.addstr(scale_start_y + 1, scale_start_x, f"Degrees: {degrees:.1f} | Azimuth: {azimuth:.1f}")
             self.screen.addstr(
                 max_y, 1,
                 "<- | \/ - turn lower | s - snapshot | v - save value | "
-                "a - lower freq. | d - upper freq. | /\ - turn upper | ->"
+                "a - lower freq. | d - upper freq. | c - config | /\ - turn upper | ->"
             )
 
             key = self.screen.getch()
             if key != -1:
                 if key == ord('q'):
                     self.looped = False
+                if key == ord('c'):
+                    self.action = display_config_win
                 elif key == ord('v'):
                     current_values.append({
                         'degrees': degrees,
@@ -81,9 +165,12 @@ class MoveWin(Menu):
                         'freq': []
                     }
 
-                    for i in frange3(400.0, 1766.0, front.config.rtl_driver.body.sample_rate / 1e6):
+                    for i in frange3(lower_frequency, upper_frequency, front.config.rtl_driver.body.sample_rate / 1e6):
+                        front.config.rtl_driver.set_central_freq(i * 1e6)
                         psd_values, frequencies = spectro_analyze(
-                            front.config.rtl_driver.body.sample_rate, float(i * 1e6), 64
+                            front.config.rtl_driver.body.sample_rate,
+                            float(front.config.rtl_driver.get_central_freq()),
+                            resolution
                         )
 
                         summary['powers'].extend(psd_values)
@@ -92,27 +179,29 @@ class MoveWin(Menu):
                     pd.DataFrame(summary).to_csv(f'snap_in_{degrees:.1f}_{azimuth:.1f}.csv', index=False)
 
                 elif key == (27 and 91 and 67):
-                    degrees += 1.8
+                    degrees += deg_per_step
                 elif key == (27 and 91 and 68):
-                    degrees -= 1.8
+                    degrees -= deg_per_step
                 elif key == ord('d'):
                     front.config.rtl_driver.change_central_freq(1e6)
                 elif key == ord('a'):
                     front.config.rtl_driver.change_central_freq(-1e6)
                 if key == (27 and 91 and 65):
-                    azimuth -= 1
+                    azimuth -= az_per_step
                     if len(current_values) > 0:
                         values.append({
                             'azimuth': azimuth,
                             'values': current_values
                         })
                 elif key == (27 and 91 and 66):
-                    azimuth += 1
+                    azimuth += az_per_step
                     if len(current_values) > 0:
                         values.append({
                             'azimuth': azimuth,
                             'values': current_values
                         })
+
+        # region [Info wins]
 
         def display_histogram_win(height, width):
             import front.config
@@ -185,6 +274,8 @@ class MoveWin(Menu):
 
             waterfall_win.refresh()
             time.sleep(front.config.rtl_driver.update_delay / 2)
+
+        # endregion
 
         self.screen.nodelay(True)
         self.looped = True
