@@ -18,7 +18,7 @@ class Credits(Menu):
             [
                 Border(0, 0),
                 Text('Author: Nikolay Fot | J1sk1ss', 1, 1),
-                Text('Special thanks: Gansky Pavel Nikolaevich', 1, 2),
+                Text('Special thanks to: Gansky Pavel Nikolaevich and Fot Sergey Andreevich', 1, 2),
                 ActionOptions(1, 6, [
                     "0) Exit"
                 ], [
