@@ -10,7 +10,7 @@ class RTL(Driver):
         self.serial = serial
 
         self.sample_count = 512
-        self.update_delay = 0.1
+        self.update_delay = 0.05
 
     def set_sample_rate(self, rate):
         self.body.set_sample_rate(rate)

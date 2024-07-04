@@ -7,6 +7,7 @@ from front.windows.window import Window, Menu
 from front.windows.windows.credits import Credits
 from front.windows.windows.move_win import MoveWin
 from front.windows.windows.rtl_set_win import RTLSetup
+from front.windows.windows.scenario_win import Scenario
 from front.windows.windows.spec_win import Spectrum
 from front.windows.windows.summary import SummaryWin
 from front.windows.windows.waterfall import Waterfall
@@ -43,15 +44,15 @@ class MainMenu(Menu):
         spectrum_window = Spectrum(self, self.screen)
         waterfall_window = Waterfall(self, self.screen)
         movement_window = MoveWin(self, self.screen)
-        scenario_window = Menu(self, self.screen)
+        scenario_window = Scenario(self, self.screen)
         summary_window = SummaryWin(self, self.screen)
         credits_window = Credits(self, self.screen)
 
         actions = [
             lambda: rtl_setup_window.generate(), lambda: xy_setup_window.generate(),
             lambda: spectrum_window.generate(), lambda: waterfall_window.generate(),
-            lambda: movement_window.generate(), None, lambda: summary_window.generate(),
-            lambda: credits_window.generate()
+            lambda: movement_window.generate(), lambda: scenario_window.generate(),
+            lambda: summary_window.generate(), lambda: credits_window.generate()
         ]
 
         window = Window([

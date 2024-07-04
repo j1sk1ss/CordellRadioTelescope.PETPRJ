@@ -1,3 +1,4 @@
+import time
 from typing import overload
 
 from driver.driver import Driver
@@ -30,8 +31,8 @@ class Commands(Enum):
         return f'{Direction.NONE}{speed}'
 
     @staticmethod
-    def move(direction: Direction, speed: int, steps: int):
-        return f'{direction}{speed}{steps}'
+    def move(direction: Direction, speed: int, steps: float):
+        return f'{direction.value}{speed}s{int(steps)}'
 
 
 class Nema17(Driver):
@@ -60,6 +61,7 @@ class Nema17(Driver):
         Check Nema17 connection status
         :return: Connection status
         """
+        time.sleep(0.25)
         self.controller.send('!')
 
         try_count = 1000
@@ -76,58 +78,65 @@ class Nema17(Driver):
         :param direction: Direction of moving
         """
 
+        time.sleep(0.25)
         if direction is Direction.RIGHT:
             self.controller.send(Commands.right(self.speed))
         elif direction is Direction.LEFT:
             self.controller.send(Commands.left(self.speed))
         elif direction is Direction.NONE:
-            self.controller.send(Commands.DISABLE)
+            self.controller.send(Commands.DISABLE.value)
 
     def change_speed(self, speed: int):
         """
         Change speed of Nema17
         :param speed: Speed of moving
         """
+        time.sleep(0.25)
         self.controller.send(Commands.none(speed))
 
     @overload
-    def move(self, degrees: int):
+    def move(self, degrees: float):
         ...
 
     @overload
-    def move(self, degrees: int, direction: Direction, speed: int):
+    def move(self, degrees: float, direction: Direction, speed: int):
         ...
 
     def move(self, *args):
+        time.sleep(1)
         if len(args) == 1:
-            degrees = args[0]
+            degrees = float(args[0])
             self.controller.send(Commands.move(self.direction, self.speed, degrees / self.steps_per_degree))
-        else:
-            degrees = args[0]
+        elif len(args) == 3:
+            degrees = float(args[0])
             direction = args[1]
-            speed = args[2]
+            speed = int(args[2])
             self.controller.send(Commands.move(direction, speed, degrees / self.steps_per_degree))
 
     def turn_on(self):
         """
         Turn ON nema17 drv8825
         """
-        self.controller.send(Commands.START)
+        time.sleep(1.25)
+        self.controller.send(Commands.START.value)
 
     def enable(self):
         """
         Enable Nema17 infinity movement
         """
-        self.controller.send(Commands.ENABLE)
+        time.sleep(1.25)
+        self.controller.send(Commands.ENABLE.value)
 
     def turn_off(self):
         """
         Turn OFF nema17 drv8825
         """
-        self.controller.send(Commands.STOP)
+        time.sleep(1.25)
+        self.controller.send(Commands.STOP.value)
 
     def disable(self):
         """
         Disable Nema17 infinity movement
         """
-        self.controller.send(Commands.DISABLE)
+        time.sleep(1.25)
+        self.controller.send(Commands.DISABLE.value)

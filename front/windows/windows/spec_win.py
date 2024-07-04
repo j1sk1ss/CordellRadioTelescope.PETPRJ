@@ -5,6 +5,7 @@ import numpy as np
 from overrides import overrides
 
 from common.common import frange3, spectro_analyze, check_rtl
+from front.windows.components.border import Border
 from front.windows.components.options import ActionOptions
 from front.windows.components.text import Text
 from front.windows.window import Menu, Window
@@ -167,6 +168,7 @@ class Spectrum(Menu):
         global min_freq, max_freq, freq_step, line_width, difference
         finder_window = Window(
             [
+                Border(0, 0),
                 Text('Finder - simple tool for spectrum analyze. Set max freq., min freq., step and width of line. '
                      'Then set interested difference with average value. After analyze, you will receive list '
                      'of signals. Good luck!', 0, 0),

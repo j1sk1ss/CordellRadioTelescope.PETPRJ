@@ -1,3 +1,5 @@
+import time
+
 from overrides import overrides
 from common.common import serial_ports
 from driver.nema17 import Nema17
@@ -43,6 +45,10 @@ class XYSetup(Menu):
 
             front.config.stm32_driver = STM32(port=serial_ports()[index])
             front.config.nema17_driver = Nema17(stm32=front.config.stm32_driver)
+
+            front.config.nema17_driver.turn_on()
+            front.config.nema17_driver.turn_off()
+
             self.screen.refresh()
 
         def power(body: ActionOptions, data):  # TODO: nema17 not init

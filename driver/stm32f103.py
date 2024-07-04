@@ -7,7 +7,7 @@ from driver.driver import Driver
 
 
 class STM32(Driver):
-    def __init__(self, port='COM4', bound_rate=115200):
+    def __init__(self, port='COM4', bound_rate=9600):
         try:
             self.port = port
             self.serial = serial.Serial(port, bound_rate, timeout=1)

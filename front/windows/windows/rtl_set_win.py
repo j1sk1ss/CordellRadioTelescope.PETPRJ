@@ -24,7 +24,7 @@ class RTLSetup(Menu):
             options = [
                 "0) COM-port <None>", "1) Center frequency <0.0 mHz>",
                 "2) Sample rate <2.048 mHz>", "3) Tuner gain mode <auto>",
-                "4) Sample count <512>", "5) Update delay <0.1 s>", "6) Exit"
+                "4) Sample count <512>", "5) Update delay <0.05 s>", "6) Exit"
             ]
 
         descriptions = [

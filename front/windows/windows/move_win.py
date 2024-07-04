@@ -7,6 +7,7 @@ from overrides import overrides
 
 import front.config
 from common.common import frange3, spectro_analyze, check_rtl, init_colors
+from driver.nema17 import Direction
 from front.windows.components.border import Border
 from front.windows.components.options import ActionOptions
 from front.windows.components.text import Text
@@ -31,6 +32,9 @@ upper_frequency = 1766.0
 class MoveWin(Menu):
     @overrides
     def generate(self):
+        front.config.nema17_driver.turn_on()
+        front.config.nema17_driver.disable()
+
         self.screen.clear()
 
         h, w = 15, 60
@@ -159,6 +163,7 @@ class MoveWin(Menu):
                         'degrees': degrees,
                         'value': np.average(front.config.stm32_driver.read(256))
                     })
+
                 elif key == ord('s'):
                     summary = {
                         'powers': [],
@@ -179,9 +184,13 @@ class MoveWin(Menu):
                     pd.DataFrame(summary).to_csv(f'snap_in_{degrees:.1f}_{azimuth:.1f}.csv', index=False)
 
                 elif key == (27 and 91 and 67):
+                    front.config.nema17_driver.move(deg_per_step, Direction.RIGHT, 25000)
                     degrees += deg_per_step
+
                 elif key == (27 and 91 and 68):
-                    degrees -= deg_per_step
+                    front.config.nema17_driver.move(deg_per_step, Direction.LEFT, 25000)
+                    degrees += deg_per_step
+
                 elif key == ord('d'):
                     front.config.rtl_driver.change_central_freq(1e6)
                 elif key == ord('a'):
@@ -283,4 +292,5 @@ class MoveWin(Menu):
         self.screen.nodelay(False)
         self.screen.scrollok(False)
 
+        front.config.nema17_driver.turn_off()
         curses.use_default_colors()
