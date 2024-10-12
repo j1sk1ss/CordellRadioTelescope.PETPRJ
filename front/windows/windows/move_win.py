@@ -1,17 +1,19 @@
-import curses
 import time
+import curses
+import threading
 import numpy as np
 import pandas as pd
+import front.config
 
 from overrides import overrides
-
-import front.config
-from common.common import frange3, spectro_analyze, check_rtl, init_colors
 from driver.nema17 import Direction
+from common.common import frange3, spectro_analyze, check_rtl, init_colors
+
+from front.windows.window import Menu, Window
+from front.windows.components.text import Text
 from front.windows.components.border import Border
 from front.windows.components.options import ActionOptions
-from front.windows.components.text import Text
-from front.windows.window import Menu, Window
+
 
 degrees = 0
 azimuth = 0
@@ -25,15 +27,14 @@ az_per_step = 1
 lower_frequency = 500.0
 upper_frequency = 1766.0
 
-
 # endregion
 
 
 class MoveWin(Menu):
     @overrides
     def generate(self):
-        front.config.nema17_driver.turn_on()
-        front.config.nema17_driver.disable()
+        # front.config.nema17_driver.turn_on()
+        # front.config.nema17_driver.disable()
 
         self.screen.clear()
 
@@ -165,31 +166,37 @@ class MoveWin(Menu):
                     })
 
                 elif key == ord('s'):
-                    summary = {
-                        'powers': [],
-                        'freq': []
-                    }
+                    def _save_snapshot():
+                        summary = {
+                            'powers': [],
+                            'freq': []
+                        }
 
-                    for i in frange3(lower_frequency, upper_frequency, front.config.rtl_driver.body.sample_rate / 1e6):
-                        front.config.rtl_driver.set_central_freq(i * 1e6)
-                        psd_values, frequencies = spectro_analyze(
-                            front.config.rtl_driver.body.sample_rate,
-                            float(front.config.rtl_driver.get_central_freq()),
-                            resolution
+                        for i in frange3(lower_frequency, upper_frequency, front.config.rtl_driver.body.sample_rate / 1e6):
+                            front.config.rtl_driver.set_central_freq(i * 1e6)
+                            psd_values, frequencies = spectro_analyze(
+                                front.config.rtl_driver.body.sample_rate,
+                                float(front.config.rtl_driver.get_central_freq()),
+                                resolution
+                            )
+
+                            summary['powers'].extend(psd_values)
+                            summary['freq'].extend(frequencies)
+
+                        pd.DataFrame(summary).to_csv(
+                            f'{front.config.disk_prefix}/{front.config.save_path}/snap_in_{degrees:.1f}_{azimuth:.1f}.csv',
+                            index=False
                         )
 
-                        summary['powers'].extend(psd_values)
-                        summary['freq'].extend(frequencies)
-
-                    pd.DataFrame(summary).to_csv(f'snap_in_{degrees:.1f}_{azimuth:.1f}.csv', index=False)
+                    threading.Thread(target=_save_snapshot).start()
 
                 elif key == (27 and 91 and 67):
-                    front.config.nema17_driver.move(deg_per_step, Direction.RIGHT, 25000)
+                    # front.config.nema17_driver.move(deg_per_step, Direction.RIGHT, 25000)
                     degrees += deg_per_step
 
                 elif key == (27 and 91 and 68):
-                    front.config.nema17_driver.move(deg_per_step, Direction.LEFT, 25000)
-                    degrees += deg_per_step
+                    # front.config.nema17_driver.move(deg_per_step, Direction.LEFT, 25000)
+                    degrees -= deg_per_step
 
                 elif key == ord('d'):
                     front.config.rtl_driver.change_central_freq(1e6)

@@ -1,6 +1,8 @@
-from overrides import overrides
+import sys
+sys.path.append('/Users/nikolaj/CordellRadioTelescope.EXMPL/front/windows/components')
 
-from front.windows.components.component import Component
+from overrides import overrides
+from component import Component
 
 
 class Text(Component):

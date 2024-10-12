@@ -1,14 +1,13 @@
-import curses
-import glob
 import sys
-
-import numpy as np
+import glob
+import curses
 import serial
-from numpy.fft import fft, fftfreq
+import numpy as np
 
 from operator import gt, lt
-
+sys.path.append('/Users/nikolaj/CordellRadioTelescope.EXMPL/')
 from driver.rtl2832u import RTL
+from numpy.fft import fft, fftfreq
 
 
 def perform_fft(data, sample_rate):
@@ -24,7 +23,7 @@ def wrap_text(text, width):
     """
     lines = []
     segments = text.split('\n')
-    
+
     for segment in segments:
         while len(segment) > width:
             wrap_at = segment.rfind(' ', 0, width)

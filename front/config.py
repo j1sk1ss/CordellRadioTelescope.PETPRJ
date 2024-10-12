@@ -3,9 +3,12 @@ import pickle
 from driver.driver import Driver
 
 
-rtl_driver = Driver()
-stm32_driver = Driver()
-nema17_driver = Driver()
+rtl_driver: Driver = Driver()
+stm32_driver: Driver = Driver()
+nema17_driver: Driver = Driver()
+
+disk_prefix: str = '/dev/disk2s2/'
+save_path: str = ''
 
 antenna_radius = 0
 

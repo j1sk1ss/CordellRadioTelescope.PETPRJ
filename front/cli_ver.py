@@ -1,7 +1,6 @@
-from common.common import frange3
-from front.windows.windows.main_win import MainMenu
-
 import curses
+
+from windows.windows.main_win import MainMenu
 
 
 # region [Global vars]

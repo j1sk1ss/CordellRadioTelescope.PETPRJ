@@ -1,6 +1,5 @@
 from overrides import overrides
-
-from front.windows.components.component import Component
+from windows.components.component import Component
 
 
 class Border(Component):

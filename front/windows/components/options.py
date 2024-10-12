@@ -1,7 +1,8 @@
+import sys
 import curses
 
 from overrides import overrides
-
+sys.path.append('/Users/nikolaj/CordellRadioTelescope.EXMPL/')
 from common.common import wrap_text
 from front.windows.components.component import Component
 
